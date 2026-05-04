@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CPT CLASH — NASM Exam Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:#090910;min-height:100vh;}
+#root{min-height:100vh;}
+.root{
+  min-height:100vh;
+  background:#090910;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(0,212,255,0.08) 0%,transparent 60%),
+    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.018) 40px),
+    repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,0.018) 40px);
+  font-family:'Barlow',sans-serif;color:#f0f0f8;
+  display:flex;flex-direction:column;align-items:center;padding:14px;gap:10px;user-select:none;
+}
+.bb{font-family:'Bebas Neue',sans-serif;letter-spacing:0.05em;}
+/* Title */
+.title-scr{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:0;text-align:center;padding:20px;width:100%;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(50px,13vw,96px);letter-spacing:4px;line-height:1;background:linear-gradient(135deg,#00d4ff 0%,#06ffa5 50%,#ffd60a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px rgba(0,212,255,0.35));margin-bottom:4px;}
+.logo-sub{font-size:clamp(9px,2.3vw,12px);font-weight:700;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:32px;}
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:460px;margin-bottom:20px;}
+.mc{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 10px;cursor:pointer;transition:all 0.2s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:7px;}
+.mc:hover{background:rgba(255,255,255,0.09);transform:translateY(-3px);}
+.mc.sp:hover{border-color:#ff6b6b;box-shadow:0 0 22px rgba(255,107,107,0.18);}
+.mc.mp:hover{border-color:#ffd60a;box-shadow:0 0 22px rgba(255,214,10,0.18);}
+.mc.sm:hover{border-color:#06ffa5;box-shadow:0 0 22px rgba(6,255,165,0.18);}
+.mc-icon{font-size:26px;}
+.mc-name{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:white;}
+.mc-desc{font-size:9px;color:rgba(255,255,255,0.38);line-height:1.3;}
+/* Buttons */
+.btn-p{background:linear-gradient(135deg,#00d4ff,#06ffa5);border:none;border-radius:4px;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:3px;color:#090910;cursor:pointer;padding:12px 40px;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 0 22px rgba(0,212,255,0.22);}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 0 34px rgba(0,212,255,0.4);}
+.btn-g{background:transparent;border:1px solid rgba(255,255,255,0.16);border-radius:4px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:rgba(255,255,255,0.42);cursor:pointer;padding:8px 24px;transition:all 0.15s;}
+.btn-g:hover{border-color:rgba(255,255,255,0.42);color:white;}
+/* Setup */
+.setup-scr{display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;max-width:460px;padding:16px 0;}
+.setup-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#ffd60a;}
+.cnt-row{display:flex;gap:10px;align-items:center;}
+.cnt-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);font-family:'Bebas Neue',sans-serif;font-size:20px;color:white;cursor:pointer;transition:all 0.15s;}
+.cnt-btn:hover{background:rgba(255,255,255,0.18);}
+.cnt-num{font-family:'Bebas Neue',sans-serif;font-size:34px;color:#ffd60a;min-width:30px;text-align:center;}
+.p-inputs{display:flex;flex-direction:column;gap:8px;width:100%;}
+.p-lbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+.p-inp{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:9px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:white;outline:none;transition:border-color 0.15s;}
+.p-inp:focus{border-color:rgba(255,214,10,0.5);}
+/* Boss */
+.boss{width:100%;max-width:600px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,80,80,0.23);border-radius:8px;padding:11px 15px;}
+.boss-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.boss-nm{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#ff6060;}
+.boss-hp-txt{font-family:'Bebas Neue',sans-serif;font-size:14px;color:rgba(255,255,255,0.42);}
+.boss-bg{width:100%;height:8px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden;}
+.boss-fill{height:100%;background:linear-gradient(90deg,#ff3030,#ff6b6b,#ff9999);border-radius:4px;transition:width 0.6s ease;box-shadow:0 0 9px rgba(255,60,60,0.45);}
+@keyframes bshk{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-5px);}80%{transform:translateX(5px);}}.boss-shk{animation:bshk 0.5s ease;}
+/* Shields */
+.shields{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;width:100%;max-width:600px;}
+.shield{flex:1;min-width:68px;max-width:104px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 6px;text-align:center;transition:all 0.3s;}
+.shield.atk{transform:scale(1.06);}
+.shield.dead{opacity:0.28;filter:grayscale(1);}
+.sh-ic{font-size:17px;margin-bottom:3px;}
+.sh-nm{font-size:7px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;}
+.pips{display:flex;gap:3px;justify-content:center;}
+.pip{width:7px;height:7px;border-radius:50%;border:1px solid currentColor;transition:all 0.3s;}
+.pip.on{background:currentColor;box-shadow:0 0 5px currentColor;}
+.pip.off{opacity:0.15;}
+/* Score row */
+.srow{display:flex;gap:16px;justify-content:center;align-items:center;width:100%;max-width:600px;flex-wrap:wrap;}
+.si{display:flex;flex-direction:column;align-items:center;gap:1px;}
+.sl{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.28);}
+.sv{font-family:'Bebas Neue',sans-serif;font-size:21px;}
+.sdiv{width:1px;height:26px;background:rgba(255,255,255,0.09);}
+/* Card area */
+.carea{width:100%;max-width:600px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.draw-z{width:100%;padding:32px 18px;display:flex;flex-direction:column;align-items:center;gap:12px;background:rgba(255,255,255,0.025);border:2px dashed rgba(255,255,255,0.1);border-radius:12px;cursor:pointer;transition:all 0.2s;}
+.draw-z:hover{background:rgba(255,255,255,0.05);border-color:rgba(0,212,255,0.32);box-shadow:0 0 24px rgba(0,212,255,0.07);}
+.draw-lbl{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:4px;color:rgba(255,255,255,0.2);}
+.draw-sub{font-size:10px;color:rgba(255,255,255,0.16);}
+/* QCard */
+.qcard{width:100%;border-radius:12px;border:2px solid;overflow:hidden;}
+.qcard-hdr{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.qcard-dom{display:flex;align-items:center;gap:6px;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;}
+.qcard-lvl{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;padding:2px 9px;border-radius:20px;background:rgba(255,255,255,0.1);}
+.qcard-body{padding:13px;background:rgba(0,0,0,0.42);}
+.trow{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.tbg{flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
+.tfil{height:100%;border-radius:2px;transition:width 1s linear,background 1s;}
+.tnum{font-family:'Bebas Neue',sans-serif;font-size:14px;min-width:24px;text-align:right;}
+.qtxt{font-size:clamp(13px,3.2vw,16px);font-weight:600;line-height:1.4;color:white;margin-bottom:12px;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+@media(max-width:340px){.opts{grid-template-columns:1fr;}}
+.opt{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.11);border-radius:7px;padding:9px 10px;font-family:'Barlow',sans-serif;font-size:clamp(10px,2.5vw,13px);color:rgba(255,255,255,0.75);cursor:pointer;text-align:left;transition:all 0.15s;line-height:1.3;display:flex;gap:6px;align-items:flex-start;width:100%;}
+.opt:hover:not(:disabled){background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.26);color:white;}
+.opt:disabled{cursor:default;}
+.opt.correct{background:rgba(6,255,165,0.13)!important;border-color:#06ffa5!important;color:#06ffa5!important;box-shadow:0 0 12px rgba(6,255,165,0.16);}
+.opt.wrong{background:rgba(255,80,80,0.13)!important;border-color:#ff5050!important;color:#ff8080!important;}
+.opt-l{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1px;flex-shrink:0;opacity:0.42;}
+/* Feedback */
+.fb{width:100%;border-radius:9px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;animation:fup 0.3s ease;}
+@keyframes fup{from{opacity:0;transform:translateY(9px);}to{opacity:1;transform:translateY(0);}}
+.fb.c{background:rgba(6,255,165,0.07);border:1px solid rgba(6,255,165,0.26);}
+.fb.w{background:rgba(255,80,80,0.07);border:1px solid rgba(255,80,80,0.26);}
+.fb-ic{font-size:18px;flex-shrink:0;margin-top:1px;}
+.fb-v{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;margin-bottom:4px;}
+.fb-v.c{color:#06ffa5;}.fb-v.w{color:#ff6b6b;}
+.fb-exp{font-size:11px;color:rgba(255,255,255,0.58);line-height:1.5;}
+.nxt-btn{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:7px;padding:12px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:rgba(255,255,255,0.6);cursor:pointer;transition:all 0.15s;}
+.nxt-btn:hover{background:rgba(255,255,255,0.13);color:white;}
+/* Multiplayer */
+.mp-ps{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;width:100%;max-width:600px;}
+.mpp{flex:1;min-width:90px;max-width:160px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 7px;transition:all 0.25s;}
+.mpp.cur{border-color:rgba(255,214,10,0.55);box-shadow:0 0 16px rgba(255,214,10,0.13);background:rgba(255,214,10,0.05);}
+.mpp.eli{opacity:0.25;filter:grayscale(1);}
+.mpp-nm{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mpp-sh{display:flex;flex-direction:column;gap:3px;}
+.mpp-row{display:flex;align-items:center;gap:4px;}
+.mpp-ic{font-size:9px;width:13px;text-align:center;}
+.mpp-pips{display:flex;gap:2px;}
+.upip{width:5px;height:5px;border-radius:50%;border:1px solid currentColor;}
+.upip.on{background:currentColor;}
+.upip.off{opacity:0.13;}
+.turn-ban{width:100%;max-width:600px;background:rgba(255,214,10,0.07);border:1px solid rgba(255,214,10,0.22);border-radius:7px;padding:7px 13px;display:flex;align-items:center;justify-content:space-between;}
+.turn-nm{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;}
+.turn-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,214,10,0.48);}
+.atk-sel{width:100%;background:rgba(255,214,10,0.07);border:1px solid rgba(255,214,10,0.28);border-radius:10px;padding:13px;animation:fup 0.3s ease;}
+.atk-sel h3{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:#ffd60a;margin-bottom:9px;}
+.atk-btns{display:flex;gap:7px;flex-wrap:wrap;}
+.atk-btn{flex:1;min-width:72px;background:rgba(255,214,10,0.09);border:1px solid rgba(255,214,10,0.3);border-radius:7px;padding:9px 7px;text-align:center;cursor:pointer;transition:all 0.15s;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:#ffd60a;}
+.atk-btn:hover{background:rgba(255,214,10,0.2);transform:translateY(-1px);}
+.atk-btn span{display:block;font-size:16px;margin-bottom:2px;}
+/* Study */
+.study-scr{display:flex;flex-direction:column;align-items:center;gap:11px;width:100%;max-width:600px;padding:6px 0 18px;}
+.study-hdr{display:flex;align-items:center;justify-content:space-between;width:100%;}
+.study-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:#06ffa5;}
+.frow{display:flex;gap:5px;flex-wrap:wrap;width:100%;}
+.flt{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:4px 11px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;color:rgba(255,255,255,0.4);}
+.flt:hover{background:rgba(255,255,255,0.1);color:white;}
+.flt.on{border-color:currentColor;}
+.prog-wrap{width:100%;height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#06ffa5,#00d4ff);transition:width 0.4s ease;}
+.study-stats{display:flex;gap:18px;justify-content:center;width:100%;}
+.sst{display:flex;flex-direction:column;align-items:center;gap:1px;}
+.sst-v{font-family:'Bebas Neue',sans-serif;font-size:24px;}
+.sst-l{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.28);}
+/* Flip card */
+.flip-wrap{width:100%;perspective:1100px;cursor:pointer;}
+.flip-inn{position:relative;width:100%;height:270px;transform-style:preserve-3d;transition:transform 0.55s cubic-bezier(0.4,0,0.2,1);}
+.flip-inn.flipped{transform:rotateY(180deg);}
+.flip-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;overflow:hidden;border:2px solid;}
+.flip-bk{transform:rotateY(180deg);}
+.sf{display:flex;flex-direction:column;width:100%;height:100%;}
+.sf-hdr{padding:9px 13px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sf-bod{flex:1;padding:14px 13px;background:rgba(0,0,0,0.44);display:flex;flex-direction:column;justify-content:space-between;}
+.sf-q{font-size:clamp(14px,3.3vw,17px);font-weight:600;color:white;line-height:1.4;}
+.tap-hint{font-size:10px;color:rgba(255,255,255,0.28);text-align:center;letter-spacing:1px;display:flex;align-items:center;gap:5px;justify-content:center;}
+.sb{display:flex;flex-direction:column;width:100%;height:100%;}
+.sb-hdr{padding:9px 13px;flex-shrink:0;background:rgba(0,0,0,0.5);}
+.sb-lbl{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;color:#06ffa5;}
+.sb-bod{flex:1;padding:13px;background:rgba(0,0,0,0.44);display:flex;flex-direction:column;gap:8px;overflow:auto;}
+.sb-ans{font-size:clamp(13px,3vw,15px);font-weight:700;color:#06ffa5;line-height:1.3;}
+.sb-opts{display:flex;flex-direction:column;gap:3px;}
+.sb-opt{font-size:10px;color:rgba(255,255,255,0.36);line-height:1.3;}
+.sb-opt.cor{color:#06ffa5;font-weight:700;}
+.sb-exp{font-size:11px;color:rgba(255,255,255,0.6);line-height:1.5;}
+.study-acts{display:flex;gap:8px;width:100%;}
+.sa{flex:1;border-radius:8px;padding:12px;border:none;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;transition:all 0.15s;}
+.sa.more{background:rgba(255,80,80,0.14);border:1px solid rgba(255,80,80,0.32);color:#ff8080;}
+.sa.more:hover{background:rgba(255,80,80,0.24);}
+.sa.got{background:rgba(6,255,165,0.14);border:1px solid rgba(6,255,165,0.32);color:#06ffa5;}
+.sa.got:hover{background:rgba(6,255,165,0.24);}
+.study-done-scr{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;padding:28px 14px;text-align:center;}
+/* End */
+.end-scr{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 14px;gap:18px;text-align:center;}
+.end-ttl{font-family:'Bebas Neue',sans-serif;font-size:clamp(46px,12vw,82px);letter-spacing:4px;line-height:1;}
+.end-ttl.v{background:linear-gradient(135deg,#ffd60a,#06ffa5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 32px rgba(255,214,10,0.42));}
+.end-ttl.d{background:linear-gradient(135deg,#ff3030,#ff9999);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 32px rgba(255,60,60,0.32));}
+.end-sub{font-size:clamp(10px,2.3vw,13px);color:rgba(255,255,255,0.38);letter-spacing:3px;text-transform:uppercase;}
+.end-stats{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px 22px;}
+.est{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.est-l{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.28);}
+.est-v{font-family:'Bebas Neue',sans-serif;font-size:32px;}
+.end-msg{font-size:13px;color:rgba(255,255,255,0.48);max-width:320px;line-height:1.6;}
+.end-btns{display:flex;flex-direction:column;gap:8px;width:100%;max-width:260px;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ── DOMAIN CONFIG ── */
+const DC = {
+  sciences:   { name:"Applied Sciences",  short:"Sciences",   icon:"🔬", color:"#00d4ff", dim:"#001a26" },
+  assessment: { name:"Assessment",        short:"Assessment", icon:"📊", color:"#ffd60a", dim:"#2e2000" },
+  program:    { name:"Program Design",    short:"Program",    icon:"💪", color:"#06ffa5", dim:"#00331e" },
+  nutrition:  { name:"Nutrition",         short:"Nutrition",  icon:"🥗", color:"#ff6b6b", dim:"#330011" },
+  client:     { name:"Client Relations",  short:"Client",     icon:"🤝", color:"#bf5fff", dim:"#1e003d" },
+};
+const DK = ["sciences","assessment","program","nutrition","client"];
+const DMG = { Easy:3, Medium:4, Hard:5 };
+const BOSS_MAX = 20;
+const SHIELD_MAX = 3;
+const TIMER = 40;
+const LOSE_AT = 3;
+const LETTERS = ["A","B","C","D"];
+const P_COLORS = ["#ff6b6b","#ffd60a","#06ffa5","#bf5fff"];
+const P_ICONS  = ["🏆","🥊","🔥","⚡"];
+
+/* ── QUESTIONS ── */
+const Qs = [
+  {d:"sciences",lvl:"Easy",  q:"What is the agonist muscle during a bicep curl?",o:["Triceps brachii","Biceps brachii","Brachioradialis","Deltoid"],c:1,exp:"The biceps brachii is the primary mover (agonist) during a bicep curl, responsible for elbow flexion."},
+  {d:"sciences",lvl:"Medium",q:"Which plane of motion does a lateral raise occur in?",o:["Sagittal","Transverse","Frontal","Horizontal"],c:2,exp:"Lateral raises occur in the frontal plane, involving abduction of the arm away from the body's midline."},
+  {d:"sciences",lvl:"Medium",q:"Which energy system provides immediate energy for explosive activities (0-10 sec)?",o:["Oxidative system","Glycolytic system","Phosphagen system","Krebs cycle"],c:2,exp:"The phosphagen (ATP-PC) system provides immediate energy via stored ATP and creatine phosphate for 0-10 second explosive bursts."},
+  {d:"sciences",lvl:"Medium",q:"Which muscle is NOT part of the rotator cuff?",o:["Supraspinatus","Infraspinatus","Biceps brachii","Teres minor"],c:2,exp:"The rotator cuff = SITS: Supraspinatus, Infraspinatus, Teres minor, Subscapularis. Biceps brachii is NOT included."},
+  {d:"sciences",lvl:"Hard",  q:"Synergistic dominance occurs when:",o:["The agonist is stronger than the antagonist","Synergists compensate for an inhibited prime mover","Multiple muscles contract simultaneously","The NS activates all motor units at once"],c:1,exp:"Synergistic dominance occurs when synergist muscles overcompensate for an inhibited or weakened prime mover."},
+  {d:"sciences",lvl:"Easy",  q:"Which joint actions occur during the descending phase of a squat?",o:["Hip extension, knee extension","Hip flexion, knee flexion, ankle dorsiflexion","Hip abduction, knee flexion","Hip extension, knee flexion"],c:1,exp:"During the eccentric squat phase, the hip and knee flex while the ankle dorsiflexes."},
+  {d:"sciences",lvl:"Easy",  q:"SAID principle stands for:",o:["Specific Adaptation to Increased Demands","Strength Adaptations in Individual Development","Systematic Approach to Integrated Design","Sequential Adaptation to Increasing Duration"],c:0,exp:"SAID = Specific Adaptations to Imposed Demands. The body adapts specifically to the type of stress placed on it."},
+  {d:"sciences",lvl:"Medium",q:"Type II muscle fibers are characterized by:",o:["High oxidative capacity, fatigue resistant","High glycolytic capacity, fast twitch, fatigue quickly","Low force production, aerobic metabolism","Predominantly used in endurance activities"],c:1,exp:"Type II (fast-twitch) fibers have high glycolytic capacity, produce high force quickly, but fatigue rapidly."},
+  {d:"sciences",lvl:"Easy",  q:"What is the primary function of the gluteus medius?",o:["Hip extension","Hip flexion","Hip abduction","Internal rotation"],c:2,exp:"The gluteus medius primarily abducts the hip and stabilizes the pelvis during single-leg activities."},
+  {d:"sciences",lvl:"Hard",  q:"The sliding filament theory states that during muscle contraction:",o:["Muscles store energy in tendons","Actin filaments slide over myosin filaments","Muscles produce force through elastic recoil","Sarcomeres lengthen during concentric contractions"],c:1,exp:"During contraction, actin (thin) filaments slide over myosin (thick) filaments, shortening the sarcomere."},
+  {d:"assessment",lvl:"Easy",  q:"The Overhead Squat Assessment primarily evaluates:",o:["Cardiovascular fitness","Dynamic postural control and movement compensations","Muscular strength","Body composition"],c:1,exp:"The OHSA identifies movement compensations reflecting flexibility, stability, and neuromuscular control issues."},
+  {d:"assessment",lvl:"Medium",q:"Excessive forward lean in the OHSA may indicate tightness in:",o:["Hip flexors and soleus","Hip extensors and tibialis anterior","Quadriceps only","Hamstrings and dorsiflexors"],c:0,exp:"Excessive forward lean indicates overactive hip flexors and soleus/gastrocnemius, with underactive core stabilizers and glutes."},
+  {d:"assessment",lvl:"Easy",  q:"PAR-Q stands for:",o:["Personal Activity Readiness Questionnaire","Physical Activity Readiness Questionnaire","Physiological Assessment and Risk Questionnaire","Performance Aptitude Rating and Qualification"],c:1,exp:"PAR-Q = Physical Activity Readiness Questionnaire. It screens for medical contraindications before exercise."},
+  {d:"assessment",lvl:"Easy",  q:"Normal resting heart rate for adults is:",o:["40-60 bpm","60-100 bpm","80-120 bpm","50-80 bpm"],c:1,exp:"Normal resting heart rate for adults is 60-100 beats per minute."},
+  {d:"assessment",lvl:"Medium",q:"BMI is correctly calculated as:",o:["Weight (kg) divided by Height (m)","Weight (lb) times Height (in) squared","Weight (kg) divided by Height (m) squared","Weight (lb) divided by Height (ft) squared"],c:2,exp:"BMI = weight (kg) divided by height squared (m2). It is a simple screening tool for body weight classification."},
+  {d:"assessment",lvl:"Hard",  q:"The Davies Test assesses:",o:["Core stability","Lower extremity power","Upper extremity agility and stabilization","Cardiovascular endurance"],c:2,exp:"The Davies Test measures upper extremity agility and stabilization through bilateral alternating movements."},
+  {d:"assessment",lvl:"Medium",q:"Knees caving inward (valgus) during OHSA indicates overactivity of:",o:["Gluteus medius and hip abductors","Adductors and TFL","Hamstrings and gastrocnemius","Tibialis anterior and peroneals"],c:1,exp:"Knee valgus indicates overactive adductors and TFL/IT band, with underactive gluteus medius and VMO."},
+  {d:"assessment",lvl:"Hard",  q:"Waist-to-hip ratio threshold for increased health risk in women:",o:["Greater than 0.75","Greater than 0.80","Greater than 0.85","Greater than 0.90"],c:1,exp:"A waist-to-hip ratio greater than 0.80 in women is associated with increased cardiovascular and metabolic health risk."},
+  {d:"assessment",lvl:"Hard",  q:"The Shark Skill Test primarily assesses:",o:["Cardiovascular endurance","Lower extremity agility and neuromuscular control","Upper body strength","Core stabilization"],c:1,exp:"The Shark Skill Test evaluates lower extremity agility, dynamic balance, and neuromuscular control."},
+  {d:"assessment",lvl:"Medium",q:"Forward head posture in the Push Assessment indicates overactivity of:",o:["Deep cervical flexors","Upper trapezius and SCM","Rhomboids and middle trapezius","Levator scapulae"],c:1,exp:"Forward head posture indicates overactive upper traps and SCM, with underactive deep cervical flexors."},
+  {d:"program",lvl:"Easy",  q:"NASM's OPT model stands for:",o:["Optimal Performance Training","Optimum Performance Training","Overall Progressive Training","Organized Progressive Testing"],c:1,exp:"OPT = Optimum Performance Training - NASM's systematic, evidence-based periodization model with 5 phases."},
+  {d:"program",lvl:"Easy",  q:"Which OPT phase focuses on stabilization endurance?",o:["Phase 2","Phase 3","Phase 1","Phase 4"],c:2,exp:"Phase 1 (Stabilization Endurance) builds neuromuscular control, posture, and muscular endurance as the foundation."},
+  {d:"program",lvl:"Medium",q:"What rep range is used in Phase 4 (Maximal Strength)?",o:["12-20 reps","6-12 reps","1-5 reps","8-12 reps"],c:2,exp:"Phase 4 uses 1-5 reps at 85-100% 1RM intensity to develop maximal strength."},
+  {d:"program",lvl:"Medium",q:"In Phase 2 (Strength Endurance), the superset format pairs:",o:["Two strength exercises back-to-back","A strength exercise with a stabilization exercise","Power exercises with flexibility work","Compound and isolation movements"],c:1,exp:"Phase 2 pairs a strength exercise immediately followed by a stabilization exercise for the same muscle group."},
+  {d:"program",lvl:"Easy",  q:"The FITT principle stands for:",o:["Force, Intensity, Type, Time","Frequency, Intensity, Time, Type","Frequency, Interval, Training, Technique","Force, Interval, Tempo, Training"],c:1,exp:"FITT = Frequency, Intensity, Time (duration), Type - the foundational framework for designing exercise programs."},
+  {d:"program",lvl:"Hard",  q:"Periodization is best defined as:",o:["Time of day exercise is performed","Dividing training into planned cycles of varying volume and intensity","Number of sets per session","Recovery between workout sessions"],c:1,exp:"Periodization systematically varies volume and intensity over training cycles to optimize adaptation and prevent overtraining."},
+  {d:"program",lvl:"Medium",q:"Recommended rest period between sets in Phase 1 (Stabilization):",o:["3-5 minutes","1.5-3 minutes","0-90 seconds","2-4 minutes"],c:2,exp:"Phase 1 uses 0-90 second rest periods to improve muscular endurance and metabolic conditioning."},
+  {d:"program",lvl:"Hard",  q:"Which exercise is most characteristic of Phase 5 (Power)?",o:["Ball squat with curl","Single-leg squat","Squat jump","Romanian deadlift"],c:2,exp:"Phase 5 uses high-velocity explosive movements like squat jumps, medicine ball throws, and sprint intervals."},
+  {d:"program",lvl:"Medium",q:"Tempo in resistance training refers to:",o:["Speed of cardio exercise","Speed of each repetition phase","Rest period between sets","Number of repetitions in a set"],c:1,exp:"Tempo describes the speed of each phase of a rep (eccentric, isometric, concentric) - e.g., 2-0-2."},
+  {d:"program",lvl:"Hard",  q:"The Principle of Specificity states:",o:["Training volume must progressively increase","Rest periods determine adaptation","The body adapts specifically to the demands placed on it","Muscle fibers are recruited smallest to largest"],c:2,exp:"Specificity (SAID) means the body adapts specifically to the type, speed, and intensity of exercise performed."},
+  {d:"nutrition",lvl:"Easy",  q:"How many calories are in 1 gram of fat?",o:["4 calories","7 calories","9 calories","12 calories"],c:2,exp:"Fat provides 9 kcal/gram - the highest caloric density of all macronutrients. Carbs and protein each provide 4 kcal/gram."},
+  {d:"nutrition",lvl:"Medium",q:"The AMDR for protein as a percentage of total daily calories is:",o:["10-15%","10-35%","25-40%","15-20%"],c:1,exp:"The Acceptable Macronutrient Distribution Range (AMDR) for protein is 10-35% of total daily caloric intake."},
+  {d:"nutrition",lvl:"Medium",q:"Which supplement has the most evidence for improving high-intensity performance?",o:["Glutamine","HMB","Creatine monohydrate","BCAAs"],c:2,exp:"Creatine monohydrate is the most researched ergogenic supplement, proven to enhance high-intensity, short-duration performance."},
+  {d:"nutrition",lvl:"Easy",  q:"Essential amino acids are those that:",o:["The body can synthesize from other compounds","Must be obtained through diet","Are needed only during exercise","Are found only in animal proteins"],c:1,exp:"Essential amino acids cannot be synthesized by the body and must be consumed through dietary sources."},
+  {d:"nutrition",lvl:"Easy",  q:"Glycogen is stored primarily in:",o:["Kidneys and liver","Liver and muscle tissue","Adipose tissue and liver","Pancreas and muscle"],c:1,exp:"Glycogen (stored glucose) is found primarily in the liver (~100g) and skeletal muscle (~400g)."},
+  {d:"nutrition",lvl:"Medium",q:"NASM recommends drinking how much water per pound of body weight lost during exercise?",o:["8 oz","12 oz","16 oz","20 oz"],c:2,exp:"NASM recommends drinking 16-24 oz of water for every pound of body weight lost through sweat."},
+  {d:"nutrition",lvl:"Easy",  q:"A complete protein is best described as:",o:["A protein with more than 20 amino acids","A protein containing all essential amino acids in adequate amounts","A protein that is easily digestible","A protein derived only from animal sources"],c:1,exp:"A complete protein contains all 9 essential amino acids in sufficient quantities to support bodily functions."},
+  {d:"nutrition",lvl:"Hard",  q:"The thermic effect of food (TEF) is highest for which macronutrient?",o:["Carbohydrates (5-10%)","Fats (0-3%)","Protein (20-30%)","Alcohol (10-20%)"],c:2,exp:"Protein has the highest thermic effect - 20-30% of its calories are expended during digestion and metabolism."},
+  {d:"nutrition",lvl:"Easy",  q:"A negative energy balance results in:",o:["Muscle hypertrophy","Weight gain","Weight loss","Improved glycogen storage"],c:2,exp:"A negative energy balance (calories out greater than calories in) results in weight and body fat loss over time."},
+  {d:"nutrition",lvl:"Hard",  q:"Which fat-soluble vitamin is critical for calcium absorption and bone health?",o:["Vitamin C","Vitamin B12","Vitamin D","Vitamin K"],c:2,exp:"Vitamin D is fat-soluble and essential for calcium absorption, bone density, and immune function."},
+  {d:"client",lvl:"Medium",q:"In the Transtheoretical Model, the Action stage is defined as:",o:["No intention to change within 6 months","Intending to change in next 6 months","Actively changing behavior for less than 6 months","Maintaining change for 6+ months"],c:2,exp:"Action stage: the client is actively making behavioral changes - defined as doing so for less than 6 months."},
+  {d:"client",lvl:"Medium",q:"Motivational Interviewing is best described as:",o:["A confrontational approach to force change","A client-centered style that elicits intrinsic motivation","A scripted set of goal-setting questions","A directive style focused on telling clients what to do"],c:1,exp:"Motivational Interviewing is collaborative and client-centered, helping clients explore and resolve ambivalence."},
+  {d:"client",lvl:"Easy",  q:"SMART goals stand for:",o:["Simple, Measurable, Achievable, Relevant, Timely","Specific, Measurable, Achievable, Relevant, Time-bound","Specific, Meaningful, Attainable, Realistic, Trackable","Simple, Motivating, Actionable, Realistic, Time-bound"],c:1,exp:"SMART = Specific, Measurable, Achievable, Relevant, Time-bound - a framework for clear, actionable fitness goals."},
+  {d:"client",lvl:"Hard",  q:"Which is OUTSIDE a personal trainer's scope of practice?",o:["Designing progressive resistance programs","Providing general nutrition guidelines","Diagnosing a client's shoulder injury","Modifying exercise based on client feedback"],c:2,exp:"Diagnosing injuries or medical conditions is outside a trainer's scope - this requires a licensed healthcare professional."},
+  {d:"client",lvl:"Medium",q:"The Contemplation stage of the Transtheoretical Model is characterized by:",o:["No intention to change within 6 months","Intending to change within 6 months","Actively engaging in behavior change","Maintaining change for 6+ months"],c:1,exp:"Contemplation: thinking about changing but not yet committed - intends to act within 6 months."},
+  {d:"client",lvl:"Easy",  q:"Paraphrasing in client communication means:",o:["Repeating the client's exact words back","Restating the client's message in your own words","Asking follow-up questions","Summarizing multiple topics at once"],c:1,exp:"Paraphrasing means restating the client's message in your own words, showing active listening and confirming understanding."},
+  {d:"client",lvl:"Medium",q:"The Borg RPE scale was developed by:",o:["Kenneth Cooper","Gunnar Borg","Roger Bannister","Arthur Jones"],c:1,exp:"The Borg RPE scale (6-20) was developed by Swedish physiologist Gunnar Borg to subjectively measure exercise intensity."},
+  {d:"client",lvl:"Easy",  q:"Extrinsic motivation comes from:",o:["Personal values and internal satisfaction","The joy of the activity itself","External rewards, recognition, or pressure","Long-term health goals"],c:2,exp:"Extrinsic motivation comes from outside - rewards, praise, or avoiding punishment - vs. internal drives."},
+  {d:"client",lvl:"Hard",  q:"When a trainer suspects a client may have an eating disorder, they should:",o:["Design a meal plan to help immediately","Ignore it to maintain the relationship","Express concern and refer to a healthcare professional","Discuss it openly during every training session"],c:2,exp:"Eating disorders are outside a trainer's scope. Express compassion and refer the client to a licensed professional."},
+  {d:"client",lvl:"Medium",q:"The Precontemplation stage is characterized by:",o:["Making small preparatory changes","Not recognizing a need to change within 6 months","Actively engaging in behavior change","Maintaining new behaviors for 6+ months"],c:1,exp:"Precontemplation: the person does not recognize a problem and has no intention to change within the next 6 months."},
+];
+
+/* ── HELPERS ── */
+const initDomains = () => Object.fromEntries(DK.map(k => [k, SHIELD_MAX]));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const isElim = d => DK.every(k => d[k] === 0);
+const activeDoms = d => DK.filter(k => d[k] > 0);
+const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+
+/* ── QCARD ── */
+function QCard({ card, phase, selected, timeLeft, onAnswer }) {
+  const cfg = DC[card.d];
+  const tp = (timeLeft / TIMER) * 100;
+  const tc = timeLeft > 20 ? "#06ffa5" : timeLeft > 10 ? "#ffd60a" : "#ff4040";
+  return (
+    <div className="qcard" style={{ borderColor: cfg.color }}>
+      <div className="qcard-hdr" style={{ background: cfg.dim }}>
+        <div className="qcard-dom" style={{ color: cfg.color }}><span>{cfg.icon}</span><span style={{marginLeft:6}}>{cfg.name}</span></div>
+        <div className="qcard-lvl" style={{ color: cfg.color }}>{card.lvl} · {DMG[card.lvl]} DMG</div>
+      </div>
+      <div className="qcard-body">
+        {phase === "question" && (
+          <div className="trow">
+            <div className="tbg"><div className="tfil" style={{ width:`${tp}%`, background:tc, boxShadow:`0 0 7px ${tc}` }} /></div>
+            <div className="tnum" style={{ color:tc }}>{timeLeft}</div>
+          </div>
+        )}
+        <div className="qtxt">{card.q}</div>
+        <div className="opts">
+          {card.o.map((opt,i) => {
+            let cls = "opt";
+            if (phase !== "question") { if (i===card.c) cls+=" correct"; else if (i===selected && i!==card.c) cls+=" wrong"; }
+            return (
+              <button key={i} className={cls} onClick={() => phase==="question" && onAnswer(i)} disabled={phase!=="question"}>
+                <span className="opt-l">{LETTERS[i]}</span><span style={{marginLeft:6}}>{opt}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── SINGLE PLAYER ── */
+function SinglePlayer({ onEnd, onHome }) {
+  const [doms, setDoms] = useState(initDomains());
+  const [bossHP, setBossHP] = useState(BOSS_MAX);
+  const [phase, setPhase] = useState("draw");
+  const [card, setCard] = useState(null);
+  const [sel, setSel] = useState(null);
+  const [tl, setTl] = useState(TIMER);
+  const [stats, setStats] = useState({ score:0, correct:0, wrong:0 });
+  const [turn, setTurn] = useState(0);
+  const [bossAnim, setBossAnim] = useState(false);
+  const used = useRef(new Set());
+  const ended = useRef(false);
+  const domsR = useRef(doms);
+  const bossR = useRef(bossHP);
+  useEffect(() => { domsR.current = doms; }, [doms]);
+  useEffect(() => { bossR.current = bossHP; }, [bossHP]);
+
+  useEffect(() => {
+    if (phase !== "question") return;
+    const t = setInterval(() => setTl(v => { if (v<=1){clearInterval(t);answer(-1);return 0;} return v-1; }), 1000);
+    return () => clearInterval(t);
+  }, [phase]);
+
+  const finish = (reason) => {
+    if (ended.current) return; ended.current = true;
+    setTimeout(() => onEnd({ reason, ...stats }), 800);
+  };
+
+  const draw = () => {
+    const avail = DK.filter(k => domsR.current[k]>0);
+    if (!avail.length) return;
+    const dom = pick(avail);
+    let pool = Qs.filter(q => q.d===dom && !used.current.has(q));
+    if (!pool.length){ Qs.filter(q=>q.d===dom).forEach(q=>used.current.delete(q)); pool=Qs.filter(q=>q.d===dom); }
+    const q = pick(pool); used.current.add(q);
+    setCard(q); setSel(null); setTl(TIMER); setTurn(t=>t+1); setPhase("question"); ended.current=false;
+  };
+
+  const answer = (idx) => {
+    setSel(idx); setPhase("feedback");
+    const ok = card && idx===card.c;
+    if (ok){
+      const dmg=DMG[card.lvl]; const nHP=Math.max(0,bossR.current-dmg);
+      setBossHP(nHP); setBossAnim(true); setTimeout(()=>setBossAnim(false),520);
+      setStats(s=>({score:s.score+dmg*10,correct:s.correct+1,wrong:s.wrong}));
+      if (nHP<=0) finish("victory");
+    } else {
+      const d=card ? card.d : null;
+      if(d){ setDoms(prev=>{ const n={...prev,[d]:Math.max(0,prev[d]-1)}; if(Object.values(n).filter(v=>v===0).length>=LOSE_AT) finish("defeat"); return n; }); }
+      setStats(s=>({...s,wrong:s.wrong+1}));
+    }
+  };
+
+  const atk = (phase==="question"||phase==="feedback") ? (card ? card.d : null) : null;
+
+  return (
+    <>
+      <div className={`boss${bossAnim?" boss-shk":""}`}>
+        <div className="boss-hdr"><div className="boss-nm">💀 THE EXAM BOSS</div><div className="boss-hp-txt">{bossHP} / {BOSS_MAX} HP</div></div>
+        <div className="boss-bg"><div className="boss-fill" style={{width:`${(bossHP/BOSS_MAX)*100}%`}}/></div>
+      </div>
+      <div className="shields">
+        {DK.map(k=>{ const cfg=DC[k]; const hp=doms[k]; const dead=hp===0; const active=atk===k;
+          return (<div key={k} className={`shield${active?" atk":""}${dead?" dead":""}`} style={{borderColor:active?cfg.color:"rgba(255,255,255,0.08)",boxShadow:active?`0 0 16px ${cfg.color}44`:"none"}}>
+            <div className="sh-ic">{cfg.icon}</div><div className="sh-nm">{cfg.short}</div>
+            <div className="pips" style={{color:cfg.color}}>{Array.from({length:SHIELD_MAX}).map((_,i)=><div key={i} className={`pip ${i<hp?"on":"off"}`}/>)}</div>
+          </div>);
+        })}
+      </div>
+      <div className="srow">
+        <div className="si"><span className="sl">Score</span><span className="sv" style={{color:"#ffd60a"}}>{stats.score}</span></div>
+        <div className="sdiv"/><div className="si"><span className="sl">Correct</span><span className="sv" style={{color:"#06ffa5"}}>{stats.correct}</span></div>
+        <div className="sdiv"/><div className="si"><span className="sl">Wrong</span><span className="sv" style={{color:"#ff6b6b"}}>{stats.wrong}</span></div>
+        <div className="sdiv"/><div className="si"><span className="sl">Turn</span><span className="sv" style={{color:"#00d4ff"}}>{turn}</span></div>
+        <div className="sdiv"/>
+        <button className="btn-g" onClick={onHome} style={{fontSize:10,padding:"4px 10px",letterSpacing:1}}>MENU</button>
+      </div>
+      <div className="carea">
+        {phase==="draw" && (
+          <div className="draw-z" onClick={draw}><div style={{fontSize:36}}>🃏</div><div className="draw-lbl">DRAW CARD</div><div className="draw-sub">Tap to face the Exam Boss</div></div>
+        )}
+        {card && phase!=="draw" && (
+          <>
+            <QCard card={card} phase={phase} selected={sel} timeLeft={tl} onAnswer={answer}/>
+            {phase==="feedback" && (()=>{
+              const ok=sel===card.c;
+              return (<>
+                <div className={`fb ${ok?"c":"w"}`}>
+                  <div className="fb-ic">{ok?"✅":"❌"}</div>
+                  <div>
+                    <div className={`fb-v ${ok?"c":"w"}`}>{sel===-1?"TIME'S UP!":ok?`+${DMG[card.lvl]*10} PTS — BOSS TAKES ${DMG[card.lvl]} DMG`:`WRONG — ${DC[card.d].short.toUpperCase()} LOSES 1 HP`}</div>
+                    <div className="fb-exp">{card.exp}</div>
+                  </div>
+                </div>
+                <button className="nxt-btn" onClick={()=>{setPhase("draw");setCard(null);setSel(null);}}>NEXT CARD →</button>
+              </>);
+            })()}
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+/* ── MP SETUP ── */
+function MPSetup({ onStart, onBack }) {
+  const [count, setCount] = useState(2);
+  const [names, setNames] = useState(["Player 1","Player 2","Player 3","Player 4"]);
+  return (
+    <div className="setup-scr">
+      <div className="setup-title">👥 MULTIPLAYER SETUP</div>
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:5}}>
+        <div className="sl" style={{marginBottom:3}}>NUMBER OF PLAYERS</div>
+        <div className="cnt-row">
+          <button className="cnt-btn" onClick={()=>setCount(c=>Math.max(2,c-1))}>−</button>
+          <div className="cnt-num">{count}</div>
+          <button className="cnt-btn" onClick={()=>setCount(c=>Math.min(4,c+1))}>+</button>
+        </div>
+      </div>
+      <div className="p-inputs">
+        {Array.from({length:count}).map((_,i)=>(
+          <div key={i}>
+            <div className="p-lbl" style={{color:P_COLORS[i]}}>{P_ICONS[i]} Player {i+1}</div>
+            <input className="p-inp" value={names[i]} maxLength={16} placeholder={`Player ${i+1}`}
+              style={{borderColor:`${P_COLORS[i]}3a`}}
+              onChange={e=>setNames(n=>{const c=[...n];c[i]=e.target.value;return c;})}/>
+          </div>
+        ))}
+      </div>
+      <div style={{display:"flex",gap:9,width:"100%"}}>
+        <button className="btn-g" onClick={onBack} style={{flex:1}}>BACK</button>
+        <button className="btn-p" onClick={()=>onStart(
+          Array.from({length:count}).map((_,i)=>({name:names[i]||`Player ${i+1}`,domains:initDomains(),color:P_COLORS[i],icon:P_ICONS[i]}))
+        )} style={{flex:2}}>START GAME</button>
+      </div>
+    </div>
+  );
+}
+
+/* ── MULTIPLAYER ── */
+function MultiPlayer({ init, onEnd, onHome }) {
+  const [players, setPlayers] = useState(init);
+  const [cur, setCur] = useState(0);
+  const [phase, setPhase] = useState("draw");
+  const [card, setCard] = useState(null);
+  const [sel, setSel] = useState(null);
+  const [tl, setTl] = useState(TIMER);
+  const [result, setResult] = useState(null);
+  const [turn, setTurn] = useState(0);
+  const used = useRef(new Set());
+  const ended = useRef(false);
+  const plR = useRef(players);
+  useEffect(()=>{ plR.current=players; },[players]);
+
+  useEffect(()=>{
+    if (phase!=="question") return;
+    const t = setInterval(()=>setTl(v=>{ if(v<=1){clearInterval(t);doAnswer(-1);return 0;} return v-1; }),1000);
+    return ()=>clearInterval(t);
+  },[phase]);
+
+  const alive = (ps) => ps.filter(p=>!isElim(p.domains));
+
+  const checkWin = (ps) => {
+    if (ended.current) return;
+    const a = alive(ps);
+    if (a.length===1){ ended.current=true; setTimeout(()=>onEnd({winner:a[0].name}),800); }
+  };
+
+  const draw = () => {
+    let pool = Qs.filter(q=>!used.current.has(q));
+    if (!pool.length){ used.current=new Set(); pool=[...Qs]; }
+    const q = pick(pool); used.current.add(q);
+    setCard(q); setSel(null); setTl(TIMER); setTurn(t=>t+1); setPhase("question"); ended.current=false;
+  };
+
+  const doAnswer = (idx) => {
+    setSel(idx);
+    const ok = card && idx===card.c;
+    if (ok){
+      const opps = plR.current.filter((_,i)=>i!==cur && !isElim(plR.current[i].domains));
+      if (opps.length===0){ setResult({ok,msg:"Correct! No opponents to attack."}); setPhase("feedback"); }
+      else if (opps.length===1){ attackPlayer(plR.current.indexOf(opps[0])); }
+      else { setPhase("pick-target"); }
+    } else {
+      const curP = plR.current[cur];
+      const avail = activeDoms(curP.domains);
+      const hitDom = avail.length ? pick(avail) : null;
+      if (hitDom){
+        setPlayers(prev=>{
+          const np=prev.map((p,i)=>i!==cur?p:{...p,domains:{...p.domains,[hitDom]:Math.max(0,p.domains[hitDom]-1)}});
+          checkWin(np); return np;
+        });
+      }
+      setResult({ok:false,domain:hitDom,msg:`${hitDom?DC[hitDom].short+" shield":"Your shield"} loses 1 HP!`});
+      setPhase("feedback");
+    }
+  };
+
+  const attackPlayer = (ti) => {
+    setPlayers(prev=>{
+      const np=[...prev];
+      const avail=activeDoms(np[ti].domains);
+      if (!avail.length) return prev;
+      const hitDom=pick(avail);
+      np[ti]={...np[ti],domains:{...np[ti].domains,[hitDom]:Math.max(0,np[ti].domains[hitDom]-1)}};
+      setResult({ok:true,targetName:np[ti].name,domain:hitDom});
+      setPhase("feedback");
+      checkWin(np); return np;
+    });
+  };
+
+  const nextPlayer = () => {
+    const ps=plR.current; let next=(cur+1)%ps.length; let tries=0;
+    while(isElim(ps[next].domains)&&tries<ps.length){next=(next+1)%ps.length;tries++;}
+    setCur(next); setPhase("draw"); setCard(null); setSel(null); setResult(null);
+  };
+
+  const curP = players[cur];
+  const opps = players.filter((_,i)=>i!==cur&&!isElim(players[i].domains));
+  let nextName = ""; { const ps=players; let n=(cur+1)%ps.length; let t=0; while(isElim(ps[n].domains)&&t<ps.length){n=(n+1)%ps.length;t++;} nextName=ps[n].name; }
+
+  return (
+    <>
+      <div className="mp-ps">
+        {players.map((p,i)=>{
+          const dead=isElim(p.domains); const isCur=i===cur;
+          return (
+            <div key={i} className={`mpp${isCur?" cur":""}${dead?" eli":""}`}>
+              <div className="mpp-nm" style={{color:p.color}}>{dead?"💀 ":isCur?"▶ ":""}{p.name}</div>
+              <div className="mpp-sh">
+                {DK.map(k=>{ const h=p.domains[k]; const c=DC[k].color;
+                  return (<div key={k} className="mpp-row"><div className="mpp-ic">{DC[k].icon}</div>
+                    <div className="mpp-pips" style={{color:c}}>{Array.from({length:SHIELD_MAX}).map((_,j)=><div key={j} className={`upip ${j<h?"on":"off"}`}/>)}</div></div>);
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="turn-ban">
+        <div><div className="turn-lbl">Current Turn</div><div className="turn-nm" style={{color:curP.color}}>{curP.icon} {curP.name}</div></div>
+        <div style={{display:"flex",gap:9,alignItems:"center"}}>
+          <div className="si"><span className="sl">Turn</span><span className="sv" style={{color:"#00d4ff",fontSize:19}}>{turn}</span></div>
+          <button className="btn-g" onClick={onHome} style={{fontSize:10,padding:"4px 10px",letterSpacing:1}}>MENU</button>
+        </div>
+      </div>
+      <div className="carea">
+        {phase==="draw" && (
+          <div className="draw-z" onClick={draw}><div style={{fontSize:36}}>🃏</div><div className="draw-lbl">DRAW CARD</div><div className="draw-sub" style={{color:curP.color}}>{curP.name}'s turn — tap to draw</div></div>
+        )}
+        {card && phase!=="draw" && (<>
+          <QCard card={card} phase={phase} selected={sel} timeLeft={tl} onAnswer={doAnswer}/>
+          {phase==="pick-target" && (
+            <div className="atk-sel">
+              <h3>🎯 CORRECT! Choose your target:</h3>
+              <div className="atk-btns">
+                {opps.map(p=>{ const oi=players.indexOf(p);
+                  return (<div key={oi} className="atk-btn" onClick={()=>attackPlayer(oi)}><span>{p.icon}</span>{p.name}</div>);
+                })}
+              </div>
+            </div>
+          )}
+          {phase==="feedback" && result && (<>
+            <div className={`fb ${result.ok?"c":"w"}`}>
+              <div className="fb-ic">{result.ok?"⚔️":"❌"}</div>
+              <div>
+                <div className={`fb-v ${result.ok?"c":"w"}`}>
+                  {result.ok ? `${result.targetName}'s ${DC[result.domain||"sciences"].short} shield hit!` : sel===-1 ? `TIME'S UP! ${result.msg}` : `WRONG! ${result.msg}`}
+                </div>
+                <div className="fb-exp">{card.exp}</div>
+              </div>
+            </div>
+            <button className="nxt-btn" onClick={nextPlayer}>NEXT: {nextName} →</button>
+          </>)}
+        </>)}
+      </div>
+    </>
+  );
+}
+
+/* ── STUDY MODE ── */
+function StudyMode({ onBack }) {
+  const [domF, setDomF] = useState("all");
+  const [lvlF, setLvlF] = useState("all");
+  const [deck, setDeck] = useState(()=>shuffle(Qs));
+  const [idx, setIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [mastered, setMastered] = useState(0);
+  const [more, setMore] = useState(0);
+  const [review, setReview] = useState([]);
+  const [done, setDone] = useState(false);
+
+  const filtered = deck.filter(q=>(domF==="all"||q.d===domF)&&(lvlF==="all"||q.lvl===lvlF));
+  const total = filtered.length;
+  const cur = filtered[idx];
+  const seen = mastered+more;
+  const pct = total>0?(seen/total)*100:0;
+
+  const setDF = (v) => { setDomF(v); setIdx(0); setFlipped(false); };
+  const setLF = (v) => { setLvlF(v); setIdx(0); setFlipped(false); };
+
+  const advance = (isGot) => {
+    if (isGot) setMastered(m=>m+1);
+    else { setMore(m=>m+1); setReview(r=>cur?[...r,cur]:r); }
+    setFlipped(false);
+    const next = idx+1;
+    if (next>=filtered.length){
+      const pile = isGot ? review : [...review, cur].filter(Boolean);
+      if (pile.length>0){ setDeck(shuffle(pile)); setReview([]); setIdx(0); }
+      else { setDone(true); }
+    } else { setIdx(next); }
+  };
+
+  const reset = () => {
+    setDeck(shuffle(Qs)); setIdx(0); setFlipped(false);
+    setMastered(0); setMore(0); setReview([]); setDone(false);
+  };
+
+  if (done) return (
+    <div className="study-done-scr">
+      <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:38,letterSpacing:3,color:"#06ffa5"}}>DECK COMPLETE!</div>
+      <div className="end-stats">
+        <div className="est"><span className="est-l">Mastered</span><span className="est-v" style={{color:"#06ffa5"}}>{mastered}</span></div>
+        <div className="est"><span className="est-l">Needs Work</span><span className="est-v" style={{color:"#ff6b6b"}}>{more}</span></div>
+        <div className="est"><span className="est-l">Accuracy</span><span className="est-v" style={{color:"#ffd60a"}}>{seen>0?Math.round(mastered/seen*100):0}%</span></div>
+      </div>
+      <div style={{display:"flex",gap:9,flexDirection:"column",width:"100%",maxWidth:260}}>
+        <button className="btn-p" onClick={reset}>STUDY AGAIN</button>
+        <button className="btn-g" onClick={onBack}>MAIN MENU</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="study-scr">
+      <div className="study-hdr">
+        <div className="study-title">📚 STUDY MODE</div>
+        <button className="btn-g" onClick={onBack} style={{fontSize:10,padding:"4px 10px"}}>MENU</button>
+      </div>
+      <div className="frow">
+        {[["all","All"],["sciences",DC.sciences.icon],["assessment",DC.assessment.icon],["program",DC.program.icon],["nutrition",DC.nutrition.icon],["client",DC.client.icon]].map(([v,lbl])=>{
+          const on=domF===v; const col=v==="all"?"rgba(255,255,255,0.6)":DC[v].color;
+          return <div key={v} className={`flt${on?" on":""}`} style={{color:on?col:"rgba(255,255,255,0.4)",borderColor:on?col:"rgba(255,255,255,0.09)"}} onClick={()=>setDF(v)}>{lbl}</div>;
+        })}
+      </div>
+      <div className="frow">
+        {[["all","All Levels"],["Easy","Easy"],["Medium","Medium"],["Hard","Hard"]].map(([v,lbl])=>{
+          const on=lvlF===v; const col=v==="Easy"?"#06ffa5":v==="Medium"?"#ffd60a":v==="Hard"?"#ff6b6b":"rgba(255,255,255,0.6)";
+          return <div key={v} className={`flt${on?" on":""}`} style={{color:on?col:"rgba(255,255,255,0.4)",borderColor:on?col:"rgba(255,255,255,0.09)"}} onClick={()=>setLF(v)}>{lbl}</div>;
+        })}
+      </div>
+      <div style={{width:"100%"}}>
+        <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+          <span className="sl">{total>0?`CARD ${Math.min(idx+1,total)} OF ${total}`:""}{review.length>0?` (+${review.length} in review)`:""}</span>
+          <span className="sl">{mastered} MASTERED</span>
+        </div>
+        <div className="prog-wrap"><div className="prog-fill" style={{width:`${pct}%`}}/></div>
+      </div>
+      <div className="study-stats">
+        <div className="sst"><span className="sst-v" style={{color:"#06ffa5"}}>{mastered}</span><span className="sst-l">Got It</span></div>
+        <div className="sst"><span className="sst-v" style={{color:"#ff6b6b"}}>{more}</span><span className="sst-l">Study More</span></div>
+        <div className="sst"><span className="sst-v" style={{color:"#ffd60a"}}>{seen>0?Math.round(mastered/seen*100):0}%</span><span className="sst-l">Accuracy</span></div>
+      </div>
+      {cur ? (<>
+        <div className="flip-wrap" onClick={()=>setFlipped(f=>!f)}>
+          <div className={`flip-inn${flipped?" flipped":""}`}>
+            <div className="flip-face" style={{borderColor:DC[cur.d].color}}>
+              <div className="sf">
+                <div className="sf-hdr" style={{background:DC[cur.d].dim}}>
+                  <div style={{display:"flex",alignItems:"center",gap:6,color:DC[cur.d].color,fontWeight:700,fontSize:11,textTransform:"uppercase",letterSpacing:1}}><span>{DC[cur.d].icon}</span><span>{DC[cur.d].name}</span></div>
+                  <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:11,letterSpacing:2,padding:"2px 8px",borderRadius:20,background:"rgba(255,255,255,0.1)",color:DC[cur.d].color}}>{cur.lvl}</div>
+                </div>
+                <div className="sf-bod">
+                  <div className="sf-q">{cur.q}</div>
+                  <div className="tap-hint"><span>👆</span><span>TAP TO REVEAL ANSWER</span></div>
+                </div>
+              </div>
+            </div>
+            <div className="flip-face flip-bk" style={{borderColor:DC[cur.d].color}}>
+              <div className="sb">
+                <div className="sb-hdr" style={{background:DC[cur.d].dim}}><div className="sb-lbl">✓ ANSWER</div></div>
+                <div className="sb-bod">
+                  <div className="sb-ans">{cur.o[cur.c]}</div>
+                  <div className="sb-opts">{cur.o.map((o,i)=><div key={i} className={`sb-opt${i===cur.c?" cor":""}`}>{i===cur.c?"✓":"✗"} {LETTERS[i]}. {o}</div>)}</div>
+                  <div className="sb-exp">💡 {cur.exp}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {flipped && (
+          <div className="study-acts">
+            <button className="sa more" onClick={()=>advance(false)}>🔁 Study More</button>
+            <button className="sa got" onClick={()=>advance(true)}>✅ Got It!</button>
+          </div>
+        )}
+        {!flipped && <div style={{textAlign:"center",fontSize:11,color:"rgba(255,255,255,0.22)"}}>Tap card to flip • Answer on the back</div>}
+      </>) : (
+        <div style={{textAlign:"center",color:"rgba(255,255,255,0.35)",fontSize:13,padding:28}}>No cards match these filters.</div>
+      )}
+    </div>
+  );
+}
+
+/* ── END SCREEN ── */
+function EndScreen({ data, mode, onRetry, onHome }) {
+  if (mode==="mp") return (
+    <div className="end-scr">
+      <div className="end-ttl v">WINNER!</div>
+      <div className="end-sub">Last Shield Standing</div>
+      <div style={{fontSize:44,margin:"6px 0"}}>🥇</div>
+      <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:34,color:"#ffd60a",letterSpacing:3}}>{data.winner}</div>
+      <div className="end-msg">Outlasted every opponent! Now take that energy to the real NASM CPT exam.</div>
+      <div className="end-btns"><button className="btn-p" onClick={onRetry}>PLAY AGAIN</button><button className="btn-g" onClick={onHome}>MAIN MENU</button></div>
+    </div>
+  );
+  const v=data.reason==="victory";
+  return (
+    <div className="end-scr">
+      <div className={`end-ttl ${v?"v":"d"}`}>{v?"CERTIFIED!":"EXAM FAILED"}</div>
+      <div className="end-sub">{v?"Boss Defeated":"Shields Destroyed"}</div>
+      <div className="end-stats">
+        <div className="est"><span className="est-l">Score</span><span className="est-v" style={{color:"#ffd60a"}}>{data.score}</span></div>
+        <div className="est"><span className="est-l">Correct</span><span className="est-v" style={{color:"#06ffa5"}}>{data.correct}</span></div>
+        <div className="est"><span className="est-l">Wrong</span><span className="est-v" style={{color:"#ff6b6b"}}>{data.wrong}</span></div>
+      </div>
+      <div className="end-msg">{v?"You crushed it! You've got what it takes to earn that NASM CPT.":"Three domains fell. Study those weak spots and come back stronger!"}</div>
+      <div className="end-btns"><button className="btn-p" onClick={onRetry}>PLAY AGAIN</button><button className="btn-g" onClick={onHome}>MAIN MENU</button></div>
+    </div>
+  );
+}
+
+/* ── TITLE ── */
+function TitleScreen({ onMode }) {
+  return (
+    <div className="title-scr">
+      <div className="logo">CPT CLASH</div>
+      <div className="logo-sub">NASM Certified Personal Trainer Exam Prep</div>
+      <div className="mode-grid">
+        <div className="mc sp" onClick={()=>onMode("sp")}>
+          <div className="mc-icon">⚔️</div><div className="mc-name">Single Player</div><div className="mc-desc">Battle the Exam Boss solo. 5 domains, 20 HP boss.</div>
+        </div>
+        <div className="mc mp" onClick={()=>onMode("mp-setup")}>
+          <div className="mc-icon">👥</div><div className="mc-name">Multiplayer</div><div className="mc-desc">2-4 players, pass and play. Last shield wins.</div>
+        </div>
+        <div className="mc sm" onClick={()=>onMode("study")}>
+          <div className="mc-icon">📚</div><div className="mc-name">Study Mode</div><div className="mc-desc">Flip cards. Filter by domain and difficulty.</div>
+        </div>
+      </div>
+      <div style={{display:"flex",gap:12,flexWrap:"wrap",justifyContent:"center",marginTop:6}}>
+        {Object.values(DC).map(d=><div key={d.name} style={{fontSize:20}} title={d.name}>{d.icon}</div>)}
+      </div>
+    </div>
+  );
+}
+
+/* ── APP ── */
+function App() {
+  const [screen, setScreen] = useState("title");
+  const [endData, setEndData] = useState(null);
+  const [endMode, setEndMode] = useState("sp");
+  const [mpPlayers, setMpPlayers] = useState(null);
+
+  return (
+    <div className="root">
+      {screen==="title" && <TitleScreen onMode={setScreen}/>}
+      {screen==="sp" && <SinglePlayer onEnd={d=>{setEndData(d);setEndMode("sp");setScreen("end");}} onHome={()=>setScreen("title")}/>}
+      {screen==="mp-setup" && <MPSetup onStart={ps=>{setMpPlayers(ps);setScreen("mp");}} onBack={()=>setScreen("title")}/>}
+      {screen==="mp" && mpPlayers && <MultiPlayer init={mpPlayers} onEnd={d=>{setEndData(d);setEndMode("mp");setScreen("end");}} onHome={()=>setScreen("title")}/>}
+      {screen==="study" && <StudyMode onBack={()=>setScreen("title")}/>}
+      {screen==="end" && <EndScreen data={endData} mode={endMode}
+        onRetry={()=>setScreen(endMode==="mp"?"mp-setup":"sp")}
+        onHome={()=>setScreen("title")}/>}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
+</body>
+</html>
